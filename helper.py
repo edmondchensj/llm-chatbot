@@ -6,11 +6,21 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import PyPDFLoader
 from langchain.llms.bedrock import Bedrock
 from langchain_openai import OpenAI, OpenAIEmbeddings
+from langchain.memory import ConversationBufferMemory
+from langchain_community.chat_message_histories import StreamlitChatMessageHistory
+from dotenv import load_dotenv
 
-os.environ["OPENAI_API_KEY"] = "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"
+load_dotenv() 
 # os.environ["BWB_PROFILE_NAME"]
 # os.environ["OPENAI_API_KEY"]
 # os.environ["OPENAI_API_KEY"]
+
+msgs = StreamlitChatMessageHistory(key="special_app_key")
+memory = ConversationBufferMemory(memory_key="history", chat_memory=msgs)
+
+def initialise_convo():
+    if len(msgs.messages) == 0:
+        msgs.add_ai_message("How can I help you?")
 
 def get_llm():
     model_kwargs = { #AI21
@@ -71,11 +81,12 @@ def get_index(): #creates and returns an in-memory vector store to be used in th
 
 
 def get_rag_response(index, question): #rag client function
-    
+    msgs.add_user_message(question)
+
     llm = get_llm()
     
     response_text = index.query(question=question, llm=llm) #search against the in-memory index, stuff results into a prompt and send to the llm
-    
+    msgs.add_ai_message(response_text)
     return response_text
 
 if __name__ == "__main__":

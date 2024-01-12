@@ -16,6 +16,10 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+glib.initialise_convo()
+for msg in glib.msgs.messages:
+    st.chat_message(msg.type).write(msg.content)
+
 input_text = st.text_area("Input text", label_visibility="collapsed") #display a multiline text box with no label
 go_button = st.button("Go", type="primary") #display a primary button
 print("st session state: ", st.session_state)
@@ -33,4 +37,6 @@ if go_button: #code in this if block will be run when the button is clicked
         
         st.write(response_content) #display the response content
         st.session_state.messages.append({"role": "assistant", "content": response_content})
+        
+
         
