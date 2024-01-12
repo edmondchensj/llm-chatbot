@@ -18,6 +18,7 @@ load_dotenv()
 msgs = StreamlitChatMessageHistory(key="special_app_key")
 memory = ConversationBufferMemory(memory_key="history", chat_memory=msgs)
 
+
 def initialise_convo():
     if len(msgs.messages) == 0:
         msgs.add_ai_message("How can I help you?")
