@@ -18,11 +18,6 @@ load_dotenv()
 msgs = StreamlitChatMessageHistory(key="special_app_key")
 memory = ConversationBufferMemory(memory_key="history", chat_memory=msgs)
 
-
-def initialise_convo():
-    if len(msgs.messages) == 0:
-        msgs.add_ai_message("How can I help you?")
-
 def get_llm():
     model_kwargs = { #AI21
         "maxTokens": 1024, 
@@ -82,11 +77,20 @@ def get_index(): #creates and returns an in-memory vector store to be used in th
 
 
 def get_rag_response(index, question): #rag client function
-    msgs.add_user_message(question)
 
     llm = get_llm()
     
-    response_text = index.query(question=question, llm=llm) #search against the in-memory index, stuff results into a prompt and send to the llm
+    prompt = f'''
+    Answer the following question given the conversational history as follows:
+    {msgs}
+    The question is: {question}
+    '''
+
+    print("prompt: ", prompt)
+
+    response_text = index.query(question=prompt, llm=llm) #search against the in-memory index, stuff results into a prompt and send to the llm
+    
+    msgs.add_user_message(question)
     msgs.add_ai_message(response_text)
     return response_text
 
